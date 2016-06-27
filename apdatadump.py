@@ -2,8 +2,24 @@
 
 import time
 import csv
+import sys
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+
+#Check file credenziali. TODO se il file non esiste, crearlo
+try:
+    credentials_file = open('secrets.txt').readlines()
+    username = credentials_file[0].strip()[9:]
+    password = credentials_file[1].strip()[9:]
+except FileNotFoundError:
+    print('Impossibile trovare file \"secrets.txt\"'
+          ' contenente le credenziali d\'accesso.\n'
+          'Il programma verrà terminato.')
+    sys.exit(1)
 
 start_time = time.time()
 driver = webdriver.Chrome()
@@ -12,9 +28,6 @@ driver.get('http://www.adriaticapress.com/Login.htm')
 time.sleep(15)
 
 #Login credentials
-credentials_file = open('secrets.txt').readlines()
-username = credentials_file[0].strip()[9:]
-password = credentials_file[1].strip()[9:]
 username_field = driver.find_element_by_id('txtUsername')
 password_field = driver.find_element_by_id('txtPassword')
 username_field.clear()
@@ -37,8 +50,9 @@ for link in elenco_link_testate:
     dati_testata = []
     driver.execute_script('arguments[0].scrollIntoView();', link)
     link.click()
-    time.sleep(3)
-    nome_testata = driver.find_element_by_id('lblTitoloDettaglio').text
+    #time.sleep(3)
+    #nome_testata = driver.find_element_by_id('lblTitoloDettaglio').text
+    nome_testata = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.ID, 'lblTitoloDettaglio')))
     identificativo_testata = driver.find_element_by_id('lblCodice').text
     numero_testata = driver.find_element_by_id('lblNumeroDettaglio').text
     barcode_testata = driver.find_element_by_id('lblBarcodeDettaglio').text
