@@ -10,6 +10,42 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
+def url_bolla(genere_bolla):
+    base_url = 'http://www.adriaticapress.com/Bolla.htm'
+    data_odierna = time.strftime('%d/%m/%Y')
+    tipo_bolla = genere_bolla.upper()
+    elementi_url = [base_url, data_odierna, tipo_bolla]
+    return '-'.join(elementi_url)
+
+
+def get_bolla():
+    #Rendo header statico, così da non interferier nello scroll
+    dr.execute_script('$(".superHeader").css({position: "static"});')
+    lista_bolla = []
+    elenco_link_testate = WebDriverWait(dr, 150).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'a[id^=\"ctl00_MainContent_dlBolla_ctl\"]')))
+    for link in elenco_link_testate:
+        dati_testata = []
+        #Assicurarsi che il link sia visibile prima di clickarlo
+        dr.execute_script('arguments[0].scrollIntoView();', link)
+        link.click()
+        nome_testata = WebDriverWait(dr, 20).until(EC.presence_of_element_located((By.ID, 'lblTitoloDettaglio'))).text
+        identificativo_testata = dr.find_element_by_id('lblCodice').text
+        numero_testata = dr.find_element_by_id('lblNumeroDettaglio').text
+        barcode_testata = dr.find_element_by_id('lblBarcodeDettaglio').text
+        dati_testata.extend([nome_testata, identificativo_testata, numero_testata, barcode_testata])
+        lista_bolla.append(dati_testata)
+    #Scrivo bolla su file. TODO nome file appropiato (tipo bolla, data)
+    output_file = open('bolla.csv', 'w')
+    output_writer = csv.writer(output_file)
+    output_writer.writerow(['Testata', 'Pubblicazione', 'Numero', 'Barcode'])
+    for row in lista_bolla:
+        output_writer.writerow(row)
+    output_file.close()
+
+
+
+start_time = time.time()
+
 #Check file credenziali. TODO se il file non esiste, crearlo
 try:
     credentials_file = open('secrets.txt').readlines()
@@ -19,51 +55,36 @@ except FileNotFoundError:
     print('Impossibile trovare file \"secrets.txt\"'
           ' contenente le credenziali d\'accesso.\n'
           'Il programma verrà terminato.')
+    print('Uscita per errore critico dopo {} secondi'.format(round(time.time() - start_time)))
     sys.exit(1)
 
-start_time = time.time()
-driver = webdriver.Chrome()
-driver.get('http://www.adriaticapress.com/Login.htm')
+dr = webdriver.Chrome()
+dr.get('http://www.adriaticapress.com/Login.htm')
 
 time.sleep(5)
 
-#Login credentials
-username_field = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, 'txtUsername')))
-password_field = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, 'txtPassword')))
+#Login
+username_field = WebDriverWait(dr, 15).until(EC.presence_of_element_located((By.ID, 'txtUsername')))
+password_field = WebDriverWait(dr, 15).until(EC.presence_of_element_located((By.ID, 'txtPassword')))
 username_field.clear()
 username_field.send_keys(username)
 password_field.clear()
 password_field.send_keys(password)
 password_field.send_keys(Keys.RETURN)
-time.sleep(3)
+
+time.sleep(5)
 #Pagina bolla di prova, da modificare TODO
-driver.get('http://www.adriaticapress.com/Bolla.htm-24/06/2016-B')
+dr.get('http://www.adriaticapress.com/Bolla.htm-24/06/2016-B')
+
+#Nel caso sia preferibile passare attraverso la pagina 'SelezionaBolle'
+#Gestisco il dropdown tramite xpath, in alternativa avrei potuto anche
+#utiizzare il costrutto 'Select' fornito da Selenium.
+#Per ulteriori info cfr https://stackoverflow.com/a/28613320
+#driver.find_element_by_xpath('//select[@id=\"ddlBolle\"]/option[@value=\"{}\"]'.format(time.strftime('%d/%m/%Y'))).click()
 
 #Le pagine delle bolle necessitano di abbastanza tempo per caricarsi
 time.sleep(20)
+get_bolla()
 
-#Rendo header statico, così da non intralciarmi nello scroll sui link
-driver.execute_script('$(".superHeader").css({position: "static"});')
-lista_bolla = []
-elenco_link_testate = WebDriverWait(driver, 50).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'a[id^=\"ctl00_MainContent_dlBolla_ctl\"]')))
-for link in elenco_link_testate:
-    dati_testata = []
-    driver.execute_script('arguments[0].scrollIntoView();', link)
-    link.click()
-    nome_testata = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.ID, 'lblTitoloDettaglio'))).text
-    identificativo_testata = driver.find_element_by_id('lblCodice').text
-    numero_testata = driver.find_element_by_id('lblNumeroDettaglio').text
-    barcode_testata = driver.find_element_by_id('lblBarcodeDettaglio').text
-    dati_testata.extend([nome_testata, identificativo_testata, numero_testata, barcode_testata])
-    lista_bolla.append(dati_testata)
-
-#Scrivo l'output su .csv
-output_file = open('bolla.csv', 'w')
-output_writer = csv.writer(output_file)
-output_writer.writerow(['Testata', 'Pubblicazione', 'Numero', 'Barcode'])
-for row in lista_bolla:
-    output_writer.writerow(row)
-output_file.close()
-driver.close()
-total_time = time.time() - start_time
-print('Dump completato in ' + str(round(total_time)) + ' secondi.')
+dr.close()
+print('Dump completato in {} sencodi'.format(round(time.time() - start_time)))
