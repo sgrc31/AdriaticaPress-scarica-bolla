@@ -8,12 +8,12 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import WebDriverException
+from selenium.common.exceptions import WebDriverException, NoSuchElementException
 
 
 def get_bolla(tipo_bolla):
     #Inserisco elemento di controllo sul caricamento della bolla vera e propria
-    elemento_controllo = WebDriverWait(dr, 150).until(EC.invisibility_of_element_located((By.ID, 'loaderBodyPage')))
+    elemento_controllo = WebDriverWait(dr, 300).until(EC.invisibility_of_element_located((By.ID, 'loaderBodyPage')))
     time.sleep(1)
     #Rendo header statico, così da non interferier nello scroll
     dr.execute_script('$(".superHeader").css({position: "static"});')
@@ -24,10 +24,13 @@ def get_bolla(tipo_bolla):
         #Assicurarsi che il link sia visibile prima di clickarlo
         dr.execute_script('arguments[0].scrollIntoView();', link)
         link.click()
-        nome_testata = WebDriverWait(dr, 20).until(EC.presence_of_element_located((By.ID, 'lblTitoloDettaglio'))).text
+        nome_testata = WebDriverWait(dr, 150).until(EC.presence_of_element_located((By.ID, 'lblTitoloDettaglio'))).text
         identificativo_testata = dr.find_element_by_id('lblCodice').text
         numero_testata = dr.find_element_by_id('lblNumeroDettaglio').text
-        barcode_testata = dr.find_element_by_id('lblBarcodeDettaglio').text
+        try:
+            barcode_testata = dr.find_element_by_id('lblBarcodeDettaglio').text
+        except NoSuchElementException:
+            barcode_testata = 'non presente'
         dati_testata.extend([nome_testata, identificativo_testata, numero_testata, barcode_testata])
         lista_bolla.append(dati_testata)
     #Scrivo bolla su file. TODO nome file appropiato (tipo bolla, data)
@@ -70,8 +73,8 @@ password_field.send_keys(Keys.RETURN)
 
 time.sleep(5)
 
-#Scarico bolla B
-dr.get('http://www.adriaticapress.com/Bolla.htm-24/06/2016-B')
+Scarico bolla B
+dr.get('http://www.adriaticapress.com/Bolla.htm-{}-B'.format(time.strftime('%d/%m/%Y')))
 try:
     if dr.title == 'Errore di runtime':
         raise ValueError('testo raise')
@@ -83,7 +86,7 @@ except ValueError:
     print('Bolla tipo B non presente, continuo con il programma')
 
 #Scarico bolla C
-dr.get('http://www.adriaticapress.com/Bolla.htm-24/06/2016-C')
+dr.get('http://www.adriaticapress.com/Bolla.htm-{}-C'.format(time.strftime('%d/%m/%Y')))
 try:
     if dr.title == 'Errore di runtime':
         raise ValueError('testo raise')
@@ -96,7 +99,7 @@ except ValueError:
 
     
 dr.close()
-print('Operazione completata in {} secondi'.format(round(time.time() - start_time)))
+print('Bolle scaricate.\nOperazione completata in {} secondi'.format(round(time.time() - start_time)))
 
 #Nel caso sia preferibile passare attraverso la pagina 'SelezionaBolle'
 #Gestisco il dropdown tramite xpath, in alternativa avrei potuto anche
