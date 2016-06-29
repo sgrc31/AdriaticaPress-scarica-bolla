@@ -8,13 +8,15 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import WebDriverException
 
 
 def get_bolla(tipo_bolla):
+    time.sleep(50)
     #Rendo header statico, così da non interferier nello scroll
     dr.execute_script('$(".superHeader").css({position: "static"});')
     lista_bolla = []
-    elenco_link_testate = WebDriverWait(dr, 150).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'a[id^=\"ctl00_MainContent_dlBolla_ctl\"]')))
+    elenco_link_testate = dr.find_elements_by_css_selector('a[id^=\"ctl00_MainContent_dlBolla_ctl\"]')
     for link in elenco_link_testate:
         dati_testata = []
         #Assicurarsi che il link sia visibile prima di clickarlo
@@ -69,6 +71,7 @@ time.sleep(5)
 #Pagina bolla di prova, da modificare TODO
 dr.get('http://www.adriaticapress.com/Bolla.htm-24/06/2016-B')
 
+
 #Nel caso sia preferibile passare attraverso la pagina 'SelezionaBolle'
 #Gestisco il dropdown tramite xpath, in alternativa avrei potuto anche
 #utiizzare il costrutto 'Select' fornito da Selenium.
@@ -76,8 +79,15 @@ dr.get('http://www.adriaticapress.com/Bolla.htm-24/06/2016-B')
 #driver.find_element_by_xpath('//select[@id=\"ddlBolle\"]/option[@value=\"{}\"]'.format(time.strftime('%d/%m/%Y'))).click()
 
 #Le pagine delle bolle necessitano di abbastanza tempo per caricarsi
-time.sleep(60)
-get_bolla('B')
+#time.sleep(60)
+try:
+    if dr.title == 'Errore di runtime':
+        raise ValueError('testo raise')
+    get_bolla('B')
+except WebDriverException:
+    print('come previsto, nada')
+except ValueError:
+    print('preso value error')
 
 dr.close()
 print('Operazione completata in {} secondi'.format(round(time.time() - start_time)))
