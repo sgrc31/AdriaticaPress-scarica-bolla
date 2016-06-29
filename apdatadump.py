@@ -10,15 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
-def url_bolla(genere_bolla):
-    base_url = 'http://www.adriaticapress.com/Bolla.htm'
-    data_odierna = time.strftime('%d/%m/%Y')
-    tipo_bolla = genere_bolla.upper()
-    elementi_url = [base_url, data_odierna, tipo_bolla]
-    return '-'.join(elementi_url)
-
-
-def get_bolla():
+def get_bolla(tipo_bolla):
     #Rendo header statico, così da non interferier nello scroll
     dr.execute_script('$(".superHeader").css({position: "static"});')
     lista_bolla = []
@@ -35,11 +27,12 @@ def get_bolla():
         dati_testata.extend([nome_testata, identificativo_testata, numero_testata, barcode_testata])
         lista_bolla.append(dati_testata)
     #Scrivo bolla su file. TODO nome file appropiato (tipo bolla, data)
-    output_file = open('bolla.csv', 'w')
+    output_file = open('bolla_{}_{}.csv'.format(tipo_bolla, time.strftime('%d%m%y')), 'w')
     output_writer = csv.writer(output_file)
     output_writer.writerow(['Testata', 'Pubblicazione', 'Numero', 'Barcode'])
     for row in lista_bolla:
         output_writer.writerow(row)
+    print('File {} creato'.format(output_file.name))
     output_file.close()
 
 
@@ -83,8 +76,8 @@ dr.get('http://www.adriaticapress.com/Bolla.htm-24/06/2016-B')
 #driver.find_element_by_xpath('//select[@id=\"ddlBolle\"]/option[@value=\"{}\"]'.format(time.strftime('%d/%m/%Y'))).click()
 
 #Le pagine delle bolle necessitano di abbastanza tempo per caricarsi
-time.sleep(20)
-get_bolla()
+time.sleep(60)
+get_bolla('B')
 
 dr.close()
-print('Dump completato in {} sencodi'.format(round(time.time() - start_time)))
+print('Operazione completata in {} secondi'.format(round(time.time() - start_time)))
