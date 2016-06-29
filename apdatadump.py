@@ -57,7 +57,6 @@ except FileNotFoundError:
 
 dr = webdriver.Chrome()
 dr.get('http://www.adriaticapress.com/Login.htm')
-
 time.sleep(5)
 
 #Login
@@ -70,26 +69,37 @@ password_field.send_keys(password)
 password_field.send_keys(Keys.RETURN)
 
 time.sleep(5)
-#Pagina bolla di prova, da modificare TODO
-dr.get('http://www.adriaticapress.com/Bolla.htm-24/06/2016-B')
 
+#Scarico bolla B
+dr.get('http://www.adriaticapress.com/Bolla.htm-24/06/2016-B')
+try:
+    if dr.title == 'Errore di runtime':
+        raise ValueError('testo raise')
+    get_bolla('B')
+except WebDriverException:
+    print('Si è verificato un errore imprevisto, la bolla di tipo B'
+          'non verrà scaricata')
+except ValueError:
+    print('Bolla tipo B non presente, continuo con il programma')
+
+#Scarico bolla C
+dr.get('http://www.adriaticapress.com/Bolla.htm-24/06/2016-C')
+try:
+    if dr.title == 'Errore di runtime':
+        raise ValueError('testo raise')
+    get_bolla('C')
+except WebDriverException:
+    print('Si è verificato un errore imprevisto, la bolla di tipo C'
+          ' non verrà scaricata')
+except ValueError:
+    print('Bolla tipo C non presente, continuo con il programma')
+
+    
+dr.close()
+print('Operazione completata in {} secondi'.format(round(time.time() - start_time)))
 
 #Nel caso sia preferibile passare attraverso la pagina 'SelezionaBolle'
 #Gestisco il dropdown tramite xpath, in alternativa avrei potuto anche
 #utiizzare il costrutto 'Select' fornito da Selenium.
 #Per ulteriori info cfr https://stackoverflow.com/a/28613320
 #driver.find_element_by_xpath('//select[@id=\"ddlBolle\"]/option[@value=\"{}\"]'.format(time.strftime('%d/%m/%Y'))).click()
-
-#Le pagine delle bolle necessitano di abbastanza tempo per caricarsi
-#time.sleep(60)
-try:
-    if dr.title == 'Errore di runtime':
-        raise ValueError('testo raise')
-    get_bolla('B')
-except WebDriverException:
-    print('come previsto, nada')
-except ValueError:
-    print('preso value error')
-
-dr.close()
-print('Operazione completata in {} secondi'.format(round(time.time() - start_time)))
