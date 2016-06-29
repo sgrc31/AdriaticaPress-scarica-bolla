@@ -12,7 +12,9 @@ from selenium.common.exceptions import WebDriverException
 
 
 def get_bolla(tipo_bolla):
-    time.sleep(50)
+    #Inserisco elemento di controllo sul caricamento della bolla vera e propria
+    elemento_controllo = WebDriverWait(dr, 150).until(EC.invisibility_of_element_located((By.ID, 'loaderBodyPage')))
+    time.sleep(1)
     #Rendo header statico, così da non interferier nello scroll
     dr.execute_script('$(".superHeader").css({position: "static"});')
     lista_bolla = []
