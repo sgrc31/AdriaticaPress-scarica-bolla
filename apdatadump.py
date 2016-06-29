@@ -73,7 +73,7 @@ password_field.send_keys(Keys.RETURN)
 
 time.sleep(5)
 
-Scarico bolla B
+#Scarico bolla B
 dr.get('http://www.adriaticapress.com/Bolla.htm-{}-B'.format(time.strftime('%d/%m/%Y')))
 try:
     if dr.title == 'Errore di runtime':
