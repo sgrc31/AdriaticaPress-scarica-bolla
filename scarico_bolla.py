@@ -26,7 +26,8 @@ class MyWin(QDialog):
         #Creo calendario
         self.calendar_label = QLabel('Seleziona la data', self)
         self.calendar = QCalendarWidget(self)
-        self.stringa_data = time.strftime('%d/%m/%Y') # per far si che ci sia un valore all'avvio, da inserire con strftime 
+        self.stringa_data = time.strftime('%d/%m/%Y') # per far si che ci sia un valore all'avvio, da inserire con strftime
+        self.stringa_data_per_nome_file = time.strftime('%d%m%y')
         #Creo i bottoni
         self.btn_download = QPushButton('Scarica Bolle', self)
         self.btn_upload = QPushButton('Carica Vendite', self)
@@ -64,7 +65,6 @@ class MyWin(QDialog):
             #Inserisco elemento di controllo sul caricamento della bolla vera e propria
             elemento_controllo = WebDriverWait(dr, 300).until(EC.invisibility_of_element_located((By.ID, 'loaderBodyPage')))
             time.sleep(1)
-
             #Rendo header statico, così da non interferier nello scroll
             dr.execute_script('$(".superHeader").css({position: "static"});')
             lista_bolla = []
@@ -84,15 +84,13 @@ class MyWin(QDialog):
                 dati_testata.extend([nome_testata, identificativo_testata, numero_testata, barcode_testata])
                 lista_bolla.append(dati_testata)
             #Scrivo bolla su file. TODO nome file appropiato (tipo bolla, data)
-            output_file = open('bolla_{}_{}.csv'.format(tipo_bolla, time.strftime('%d%m%y')), 'w')
+            output_file = open('bolla_{}_{}.csv'.format(tipo_bolla, self.stringa_data_per_nome_file), 'w')
             output_writer = csv.writer(output_file)
             output_writer.writerow(['Testata', 'Pubblicazione', 'Numero', 'Barcode'])
             for row in lista_bolla:
                 output_writer.writerow(row)
-            print('File {} creato'.format(output_file.name))
+            self.mio_testo.insertPlainText('{} File {} creato\n'.format(time.strftime('%H:%M'), output_file.name))
             output_file.close()
-
-
                 
         #Identificazione
         try:
@@ -121,9 +119,9 @@ class MyWin(QDialog):
                 raise ValueError('testo raise')
             scarica_bolla('B')
         except WebDriverException:
-            self.mio_testo.insertPlainText('errore imprev')
+            self.mio_testo.insertPlainText('errore imprev\n')
         except ValueError:
-            self.mio_testo.insertPlainText('Bolla tipo B non presente')
+            self.mio_testo.insertPlainText('{} Bolla tipo B non presente\n'.format(time.strftime('%H:%M')))
 
         #Scarico seconda bolla
         dr.get('http://www.adriaticapress.com/Bolla.htm-{}-C'.format(self.stringa_data))
@@ -132,16 +130,17 @@ class MyWin(QDialog):
                 raise ValueError('testo raise')
             scarica_bolla('C')
         except WebDriverException:
-            self.mio_testo.insertPlainText('errore imprev')
+            self.mio_testo.insertPlainText('errore imprev\n')
         except ValueError:
-            self.mio_testo.insertPlainText('Bolla tipo C non presente')
+            self.mio_testo.insertPlainText('{} Bolla tipo C non presente\n'.format(time.strftime('%H:%M')))
 
         #Chiudo tutto
         dr.close()
-        self.mio_testo.insertPlainText('Bolle scaricate')
+        self.mio_testo.insertPlainText('{} Procedura terminata\n'.format(time.strftime('%H:%M')))
 
     def set_date(self, date):
         self.stringa_data = date.toString('dd/MM/yyyy')
+        self.stringa_data_per_nome_file = date.toString('ddMMyy')
 
     def test_funct3(self):
         self.mio_testo.setPlainText(self.stringa_data)
