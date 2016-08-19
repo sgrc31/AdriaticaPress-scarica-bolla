@@ -34,13 +34,13 @@ class MyWin(QDialog):
         vbox.addLayout(hbox)
         vbox.addWidget(self.mio_testo)
         self.setLayout(vbox)
- 
-        def test_funct():
-            self.mio_testo.setPlainText('Test text 123')
-
-        self.btn_download.clicked.connect(test_funct)
+        self.btn_download.clicked.connect(self.test_funct)
         self.setWindowTitle('Occupy Artoni')
         self.show()
+
+    def test_funct(self):
+        self.mio_testo.setPlainText('Test text 123')
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
