@@ -3,7 +3,8 @@
 import sys
 import time
 import csv
-from PyQt5.QtWidgets import QWidget, QLabel, QApplication, QPushButton, QCalendarWidget, QHBoxLayout, QVBoxLayout, QDialog, QTextEdit
+import os
+from PyQt5.QtWidgets import QWidget, QLabel, QApplication, QPushButton, QCalendarWidget, QHBoxLayout, QVBoxLayout, QDialog, QTextEdit, QFileDialog
 #from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QDate
 from selenium import webdriver
@@ -48,7 +49,7 @@ class MyWin(QDialog):
         self.calendar.clicked[QDate].connect(self.set_date)
         #self.btn_download.clicked.connect(lambda: self.test_funct('ciccio')) #uso lambda per passare ulteriori argomenti al segnale
         self.btn_download.clicked.connect(self.scarica_bolle)
-        self.btn_upload.clicked.connect(self.test_funct3)
+        self.btn_upload.clicked.connect(self.carica_vendite)
         self.setWindowTitle('Occupy Artoni')
         self.show()
 
@@ -144,6 +145,11 @@ class MyWin(QDialog):
 
     def test_funct3(self):
         self.mio_testo.setPlainText(self.stringa_data)
+
+    def carica_vendite(self):
+        filename = QFileDialog.getOpenFileName(self, 'Seleziona file vendite', os.path.abspath(os.path.dirname('.')))[0]
+        #Per selezionare una cartella invece che un file
+        #dirname = QFileDialog.getExistingDirectory(None, 'Select a folder:', '/', QFileDialog.ShowDirsOnly)
 
 
 if __name__ == '__main__':
