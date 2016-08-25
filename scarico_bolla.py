@@ -4,7 +4,7 @@ import sys
 import time
 import csv
 import os
-from PyQt5.QtWidgets import QWidget, QLabel, QApplication, QPushButton, QCalendarWidget, QHBoxLayout, QVBoxLayout, QDialog, QTextEdit, QFileDialog
+from PyQt5.QtWidgets import QWidget, QLabel, QApplication, QPushButton, QCalendarWidget, QHBoxLayout, QVBoxLayout, QDialog, QTextEdit, QFileDialog, QMessageBox
 #from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtCore import QDate
 from selenium import webdriver
@@ -100,7 +100,12 @@ class MyWin(QDialog):
                 username = credentials_file_list[0].strip()[9:]
                 password = credentials_file_list[1].strip()[9:]
         except FileNotFoundError:
-            return self.mio_testo.setPlainText('credenziali non presenti')
+            msg = QMessageBox()
+            msg.setText('File credenziali non presente')
+            msg.setWindowTitle('testtitolo')
+            msg.setStandardButtons(QMessageBox.Ok)
+            return msg.exec_()
+            #return self.mio_testo.setPlainText('credenziali non presenti')
         dr = webdriver.Chrome()
         dr.get('http://www.adriaticapress.com/Login.htm')
         time.sleep(5)
