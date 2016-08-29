@@ -75,7 +75,7 @@ class MyWin(QDialog):
                 #Assicurarsi che il link sia visibile prima di clickarlo
                 dr.execute_script('arguments[0].scrollIntoView();', link)
                 link.click()
-                nome_testata = WebDriverWait(dr, 150).until(EC.presence_of_element_located((By.ID, 'lblTitoloDettaglio'))).text
+                nome_testata = WebDriverWait(dr, 300).until(EC.presence_of_element_located((By.ID, 'lblTitoloDettaglio'))).text
                 identificativo_testata = dr.find_element_by_id('lblCodice').text
                 numero_testata = dr.find_element_by_id('lblNumeroDettaglio').text
                 try:
