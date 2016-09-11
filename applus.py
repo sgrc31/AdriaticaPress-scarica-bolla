@@ -66,9 +66,10 @@ class MyWin(QDialog):
         self.file_vendite = QFileDialog.getOpenFileName(self, 'Seleziona file vendite', os.path.abspath(os.path.dirname('.')))[0]
         if self.file_vendite:
             self.login_adriaticapress()
-            self.destroy_webdriwer
+            self.inserimento_vendite()
+            self.destroy_webdriwer()
         else:
-            return self.mio_testo.insertPlainText('Nessun file vendite selezionato')
+            return self.mio_testo.setPlainText('Nessun file vendite selezionato\n')
 
     def login_adriaticapress(self):
         '''Creazione webdriver e procedura di login in adriatipress
@@ -152,14 +153,37 @@ class MyWin(QDialog):
             output_writer = csv.writer(output_file)
             for row in lista_bolla:
                 output_writer.writerow(row)
-        self.mio_testo.insertPlainText('{} File {} creato\n'.format(time.strftime('%H:%M'), output_file.name))
+        return self.mio_testo.insertPlainText('{} File {} creato\n'.format(time.strftime('%H:%M'), output_file.name))
+
+    def inserimento_vendite(self):
+        '''Procedura di immissione delle vendite su adriaticapress
+        '''
+        self.dr.get('http://www.adriaticapress.com/Vendita.htm')
+        time.sleep(5)
+        elemento_controllo = WebDriverWait(self.dr, 300).until(EC.invisibility_of_element_located((By.ID, 'loaderBodyPage')))
+        time.sleep(5)
+        self.dr.find_element_by_id('imgMostraRicerca').click()
+        input_ean = self.dr.find_element_by_name('txtTitoloRI')
+        input_qtt = self.dr.find_element_by_name('txtQ')
+        with open(self.file_vendite) as venditecsv:
+            reader_vendite = csv.DictReader(venditecsv, fieldnames = ('tile', 'ean', 'quantity'))
+            for row in reader_vendite:
+                if not row['ean'] == 'non presente':
+                    time.sleep(1)
+                    input_ean.clear()
+                    input_ean.send_keys(row['ean'])
+                    input_qtt.clear()
+                    input_qtt.send_keys(row['quantity'])
+                    input_ean.send_keys(Keys.RETURN)
+        #TODO inserire comando per confermare lista vendite su portale
+        return self.mio_testo.insertPlainText('{} Vendite caricate\n'.format(time.strftime('%H:%M')))
 
     def destroy_webdriwer(self):
         '''Distrugge il webdriver al termine delle operazioni e
         ne dà comunicazione all'utente
         '''
         self.dr.close()
-        self.mio_testo.insertPlainText('{} Procedura terminata\n'.format(time.strftime('%H:%M')))
+        return self.mio_testo.insertPlainText('{} Procedura terminata\n'.format(time.strftime('%H:%M')))
 
 
 
