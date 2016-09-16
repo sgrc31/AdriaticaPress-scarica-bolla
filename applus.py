@@ -14,6 +14,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import WebDriverException, NoSuchElementException
 
+ip_ap = 'http://46.37.234.75/'
 
 class MyWin(QDialog):
     
@@ -86,7 +87,7 @@ class MyWin(QDialog):
             self.msg.setStandardButtons(QMessageBox.Ok)
             return self.msg.exec_()
         self.dr = webdriver.Chrome()
-        self.dr.get('http://www.adriaticapress.com/Login.htm')
+        self.dr.get('{}Login.htm'.format(ip_ap))
         time.sleep(5)
         username_field = WebDriverWait(self.dr, 15).until(EC.presence_of_element_located((By.ID, 'txtUsername')))
         password_field = WebDriverWait(self.dr, 15).until(EC.presence_of_element_located((By.ID, 'txtPassword')))
@@ -104,7 +105,7 @@ class MyWin(QDialog):
         timeout della connessione
         '''
         #Scarico prima bolla
-        self.dr.get('http://www.adriaticapress.com/Bolla.htm-{}-B'.format(self.stringa_data))
+        self.dr.get('{}Bolla.htm-{}-B'.format(ip_ap, self.stringa_data))
         try:
             if self.dr.title == 'Errore di runtime':
                 raise ValueError('testo raise')
@@ -114,7 +115,7 @@ class MyWin(QDialog):
         except ValueError:
             self.mio_testo.insertPlainText('{} Bolla tipo B non presente\n'.format(time.strftime('%H:%M')))
         #Scarico seconda bolla
-        self.dr.get('http://www.adriaticapress.com/Bolla.htm-{}-C'.format(self.stringa_data))
+        self.dr.get('{}Bolla.htm-{}-C'.format(ip_ap, self.stringa_data))
         try:
             if self.dr.title == 'Errore di runtime':
                 raise ValueError('testo raise')
@@ -158,7 +159,7 @@ class MyWin(QDialog):
     def inserimento_vendite(self):
         '''Procedura di immissione delle vendite su adriaticapress
         '''
-        self.dr.get('http://www.adriaticapress.com/Vendita.htm')
+        self.dr.get('{}Vendita.htm'.format(ip_ap))
         time.sleep(5)
         elemento_controllo = WebDriverWait(self.dr, 300).until(EC.invisibility_of_element_located((By.ID, 'loaderBodyPage')))
         time.sleep(5)
