@@ -144,11 +144,12 @@ class MyWin(QDialog):
             nome_testata = WebDriverWait(self.dr, 300).until(EC.presence_of_element_located((By.ID, 'lblTitoloDettaglio'))).text
             identificativo_testata = self.dr.find_element_by_id('lblCodice').text
             numero_testata = self.dr.find_element_by_id('lblNumeroDettaglio').text
+            prezzo_testata = self.dr.find_element_by_id('lblPrezzoDettaglio').text[2:].replace(',', '.')
             try:
                 barcode_testata = self.dr.find_element_by_id('lblBarcodeDettaglio').text
             except NoSuchElementException:
                 barcode_testata = 'non presente'
-            dati_testata.extend([nome_testata, identificativo_testata, numero_testata, barcode_testata])
+            dati_testata.extend([nome_testata, identificativo_testata, numero_testata, barcode_testata, prezzo_testata])
             lista_bolla.append(dati_testata)
         with open('bolla_{}_{}.csv'.format(tipo_bolla, self.stringa_data_per_nome_file), 'w') as output_file:
             output_writer = csv.writer(output_file)
