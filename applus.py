@@ -115,15 +115,15 @@ class MyWin(QDialog):
         except ValueError:
             self.mio_testo.insertPlainText('{} Bolla tipo B non presente\n'.format(time.strftime('%H:%M')))
         #Scarico seconda bolla
-        self.dr.get('{}Bolla.htm-{}-C'.format(ip_ap, self.stringa_data))
-        try:
-            if self.dr.title == 'Errore di runtime':
-                raise ValueError('testo raise')
-            self.scarica_bolla('C')
-        except WebDriverException:
-            self.mio_testo.insertPlainText('errore imprevisto\n')
-        except ValueError:
-            self.mio_testo.insertPlainText('{} Bolla tipo C non presente\n'.format(time.strftime('%H:%M')))
+        #self.dr.get('{}Bolla.htm-{}-C'.format(ip_ap, self.stringa_data))
+        #try:
+        #    if self.dr.title == 'Errore di runtime':
+        #        raise ValueError('testo raise')
+        #    self.scarica_bolla('C')
+        #except WebDriverException:
+        #    self.mio_testo.insertPlainText('errore imprevisto\n')
+        #except ValueError:
+        #    self.mio_testo.insertPlainText('{} Bolla tipo C non presente\n'.format(time.strftime('%H:%M')))
 
     def scarica_bolla(self, tipo_bolla):
         '''Procedura di raccolta dati bolla dal portale adriaticapress e scrittura
@@ -151,7 +151,8 @@ class MyWin(QDialog):
                 barcode_testata = 'non presente'
             dati_testata.extend([nome_testata, identificativo_testata, numero_testata, barcode_testata, prezzo_testata])
             lista_bolla.append(dati_testata)
-        with open('bolla_{}_{}.csv'.format(tipo_bolla, self.stringa_data_per_nome_file), 'w') as output_file:
+#        with open('bolla_{}_{}.csv'.format(tipo_bolla, self.stringa_data_per_nome_file), 'w') as output_file:
+        with open('C:\EasyRetail\Carico\Giornali\bolla.csv', 'w') as output_file:
             output_writer = csv.writer(output_file)
             for row in lista_bolla:
                 output_writer.writerow(row)
