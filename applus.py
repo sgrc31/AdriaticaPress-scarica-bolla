@@ -86,7 +86,8 @@ class MyWin(QDialog):
             self.msg.setWindowTitle('testtitolo')
             self.msg.setStandardButtons(QMessageBox.Ok)
             return self.msg.exec_()
-        self.dr = webdriver.Chrome()
+        self.dr = webdriver.Chrome('chromedriver.exe')
+        self.dr.maximize_window()
         self.dr.get('{}Login.htm'.format(ip_ap))
         time.sleep(5)
         username_field = WebDriverWait(self.dr, 15).until(EC.presence_of_element_located((By.ID, 'txtUsername')))
@@ -152,7 +153,7 @@ class MyWin(QDialog):
             dati_testata.extend([nome_testata, identificativo_testata, numero_testata, barcode_testata, prezzo_testata])
             lista_bolla.append(dati_testata)
 #        with open('bolla_{}_{}.csv'.format(tipo_bolla, self.stringa_data_per_nome_file), 'w') as output_file:
-        with open('C:\EasyRetail\Carico\Giornali\bolla.csv', 'w') as output_file:
+        with open('C:\\EasyRetail\\Carico\\Giornali\\bolla.csv', 'w') as output_file:
             output_writer = csv.writer(output_file)
             for row in lista_bolla:
                 output_writer.writerow(row)
