@@ -182,13 +182,15 @@ class MyWin(QDialog):
         righe_con_dati = ws.max_row - 1
         for riga in ws.iter_rows(min_row=3, max_row=righe_con_dati):
             descrizione, ean, copie = riga
-            time.sleep(1)
+            time.sleep(2)
             input_ean.clear()
             input_ean.send_keys(ean.value)
             input_qtt.clear()
             input_qtt.send_keys(copie.value)
             input_ean.send_keys(Keys.RETURN)
         os.remove(PATH_FILE_VENDITE)
+        time.sleep(3)
+        self.dr.find_element_by_id('ibCassa').click()
         return self.mio_testo.insertPlainText('{} Vendite caricate\n'.format(time.strftime('%H:%M')))
 
     def destroy_webdriwer(self):
