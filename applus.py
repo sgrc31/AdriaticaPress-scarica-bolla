@@ -13,8 +13,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import WebDriverException, NoSuchElementException
+from openpyxl import load_workbook
 
 ip_ap = 'http://46.37.234.75/'
+if os.name == 'nt':
+    PATH_BOLLA_SCARICATA = 'C:\\EasyRetail\\Carico\\Giornali\\bolla.csv'
+    PATH_FILE_VENDITE = os.path.expanduser('~/Desktop/vendite_giornali/Foglio1.xlsx')
+else:
+    PATH_BOLLA_SCARICATA = 'bolla.csv'
+    PATH_FILE_VENDITE = 'Foglio1.xlsx'
 
 class MyWin(QDialog):
     
@@ -64,13 +71,12 @@ class MyWin(QDialog):
         self.destroy_webdriwer()
 
     def upload_vendite(self):
-        self.file_vendite = QFileDialog.getOpenFileName(self, 'Seleziona file vendite', os.path.abspath(os.path.dirname('.')))[0]
-        if self.file_vendite:
+        if os.path.isfile(PATH_FILE_VENDITE):
             self.login_adriaticapress()
             self.inserimento_vendite()
             self.destroy_webdriwer()
         else:
-            return self.mio_testo.setPlainText('Nessun file vendite selezionato\n')
+            return self.mio_testo.setPlainText('Nessun file vendite trovato\nAssicurarsi di aver fatto export delle vendite da EasyRetail')
 
     def login_adriaticapress(self):
         '''Creazione webdriver e procedura di login in adriatipress
@@ -86,7 +92,10 @@ class MyWin(QDialog):
             self.msg.setWindowTitle('testtitolo')
             self.msg.setStandardButtons(QMessageBox.Ok)
             return self.msg.exec_()
-        self.dr = webdriver.Chrome('chromedriver.exe')
+        if os.name == 'nt':
+            self.dr = webdriver.Chrome('chromedriver.exe')
+        else:
+            self.dr = webdriver.Chrome()
         self.dr.maximize_window()
         self.dr.get('{}Login.htm'.format(ip_ap))
         time.sleep(5)
@@ -152,8 +161,7 @@ class MyWin(QDialog):
                 barcode_testata = 'non presente'
             dati_testata.extend([nome_testata, identificativo_testata, numero_testata, barcode_testata, prezzo_testata])
             lista_bolla.append(dati_testata)
-#        with open('bolla_{}_{}.csv'.format(tipo_bolla, self.stringa_data_per_nome_file), 'w') as output_file:
-        with open('C:\\EasyRetail\\Carico\\Giornali\\bolla.csv', 'w') as output_file:
+        with open(PATH_BOLLA_SCARICATA, 'w') as output_file:
             output_writer = csv.writer(output_file)
             for row in lista_bolla:
                 output_writer.writerow(row)
@@ -169,24 +177,25 @@ class MyWin(QDialog):
         self.dr.find_element_by_id('imgMostraRicerca').click()
         input_ean = self.dr.find_element_by_name('txtTitoloRI')
         input_qtt = self.dr.find_element_by_name('txtQ')
-        with open(self.file_vendite) as venditecsv:
-            reader_vendite = csv.DictReader(venditecsv, fieldnames = ('tile', 'ean', 'quantity'))
-            for row in reader_vendite:
-                if not row['ean'] == 'non presente':
-                    time.sleep(1)
-                    input_ean.clear()
-                    input_ean.send_keys(row['ean'])
-                    input_qtt.clear()
-                    input_qtt.send_keys(row['quantity'])
-                    input_ean.send_keys(Keys.RETURN)
-        #TODO inserire comando per confermare lista vendite su portale
+        wb = load_workbook(PATH_FILE_VENDITE)
+        ws = wb.get_sheet_by_name('ExportExcel')
+        righe_con_dati = ws.max_row - 1
+        for riga in ws.iter_rows(min_row=3, max_row=righe_con_dati):
+            descrizione, ean, copie = riga
+            time.sleep(1)
+            input_ean.clear()
+            input_ean.send_keys(ean.value)
+            input_qtt.clear()
+            input_qtt.send_keys(copie.value)
+            input_ean.send_keys(Keys.RETURN)
+        os.remove(PATH_FILE_VENDITE)
         return self.mio_testo.insertPlainText('{} Vendite caricate\n'.format(time.strftime('%H:%M')))
 
     def destroy_webdriwer(self):
         '''Distrugge il webdriver al termine delle operazioni e
         ne dà comunicazione all'utente
         '''
-        self.dr.close()
+        self.dr.quit()
         return self.mio_testo.insertPlainText('{} Procedura terminata\n'.format(time.strftime('%H:%M')))
 
 
