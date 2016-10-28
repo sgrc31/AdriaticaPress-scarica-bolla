@@ -14,6 +14,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import WebDriverException, NoSuchElementException
 from openpyxl import load_workbook
+from random import randrange
 
 ip_ap = 'http://46.37.234.75/'
 if os.name == 'nt':
@@ -158,7 +159,7 @@ class MyWin(QDialog):
             try:
                 barcode_testata = self.dr.find_element_by_id('lblBarcodeDettaglio').text
             except NoSuchElementException:
-                barcode_testata = 'non presente'
+                barcode_testata = '3103{}'.format(str(randrange(1, 99999999999999)).zfill(14))
             dati_testata.extend([nome_testata, identificativo_testata, numero_testata, barcode_testata, prezzo_testata])
             lista_bolla.append(dati_testata)
         with open(PATH_BOLLA_SCARICATA, 'w') as output_file:
