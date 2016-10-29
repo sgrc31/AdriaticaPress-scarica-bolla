@@ -145,7 +145,8 @@ class MyWin(QDialog):
         time.sleep(1)
         #Rendo header statico, così da non interferier nello scroll
         self.dr.execute_script('$(".superHeader").css({position: "static"});')
-        lista_bolla = []
+        time.sleep(1)
+        lista_bolla = [['testata tipo', '12345', '12345', '123456789012345678', '99.00']]
         elenco_link_testate = self.dr.find_elements_by_css_selector('a[id^=\"ctl00_MainContent_dlBolla_ctl\"]')
         for link in elenco_link_testate:
             dati_testata = []
